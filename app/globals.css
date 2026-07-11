@@ -1,0 +1,321 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #c81e1e;
+  --color-primary-dark: #101012;
+  --color-accent: #f5b301;
+  --color-success: #1e8a4c;
+  --color-bg: #fafafa;
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-accent: var(--color-accent);
+  --color-success: var(--color-success);
+  --color-bg: var(--color-bg);
+  --color-white: var(--color-white);
+  --color-gray-50: var(--color-gray-50);
+  --color-gray-100: var(--color-gray-100);
+  --color-gray-200: var(--color-gray-200);
+  --color-gray-300: var(--color-gray-300);
+  --color-gray-400: var(--color-gray-400);
+  --color-gray-500: var(--color-gray-500);
+  --color-gray-600: var(--color-gray-600);
+  --color-gray-700: var(--color-gray-700);
+  --color-gray-800: var(--color-gray-800);
+  --color-gray-900: var(--color-gray-900);
+
+  --font-heading: var(--font-poppins);
+  --font-arabic: var(--font-cairo);
+  --font-body: var(--font-inter);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-gray-900);
+  min-height: 100vh;
+}
+
+/* ============================================
+   ADMIN DARK LUXURY THEME
+   ============================================ */
+
+.admin-theme {
+  --admin-bg: #0a0a0f;
+  --admin-surface: #111118;
+  --admin-surface-hover: #1a1a24;
+  --admin-surface-active: #22222e;
+  --admin-border: #1e1e2a;
+  --admin-border-subtle: #16161f;
+  --admin-text: #f0f0f5;
+  --admin-text-muted: #7a7a8e;
+  --admin-text-dim: #4a4a5e;
+  --admin-gold: #d4a843;
+  --admin-gold-light: #e8c56a;
+  --admin-gold-dim: #b8922e;
+  --admin-accent: #c81e1e;
+  --admin-success: #22c55e;
+  --admin-warning: #f59e0b;
+  --admin-danger: #ef4444;
+  --admin-info: #3b82f6;
+
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  min-height: 100vh;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+/* Scrollbar */
+.admin-theme ::-webkit-scrollbar { width: 6px; height: 6px; }
+.admin-theme ::-webkit-scrollbar-track { background: transparent; }
+.admin-theme ::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 3px; }
+.admin-theme ::-webkit-scrollbar-thumb:hover { background: #3a3a4a; }
+
+/* Glassmorphism utility */
+.admin-glass {
+  background: rgba(17, 17, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-glass-light {
+  background: rgba(30, 30, 42, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Premium card */
+.admin-card {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-card:hover {
+  border-color: rgba(212, 168, 67, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Gold glow effect */
+.admin-glow {
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.1),
+              0 0 60px rgba(212, 168, 67, 0.05);
+}
+
+/* Gold gradient text */
+.admin-gold-text {
+  background: linear-gradient(135deg, #d4a843, #e8c56a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Subtle gradient background */
+.admin-gradient {
+  background: linear-gradient(135deg, #0a0a0f 0%, #111118 50%, #0d0d14 100%);
+}
+
+/* Input styling */
+.admin-input {
+  background: rgba(30, 30, 42, 0.6);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  color: var(--admin-text);
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.admin-input:focus {
+  border-color: rgba(212, 168, 67, 0.4);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.08);
+}
+
+.admin-input::placeholder {
+  color: var(--admin-text-dim);
+}
+
+/* Select styling */
+.admin-select {
+  background: rgba(30, 30, 42, 0.6);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  color: var(--admin-text);
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7a8e' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.admin-select:focus {
+  border-color: rgba(212, 168, 67, 0.4);
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.08);
+}
+
+/* Button base */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.admin-btn-gold {
+  background: linear-gradient(135deg, #d4a843, #b8922e);
+  color: #0a0a0f;
+  box-shadow: 0 4px 16px rgba(212, 168, 67, 0.25);
+}
+
+.admin-btn-gold:hover {
+  background: linear-gradient(135deg, #e8c56a, #d4a843);
+  box-shadow: 0 6px 24px rgba(212, 168, 67, 0.35);
+  transform: translateY(-1px);
+}
+
+.admin-btn-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.admin-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.admin-btn-ghost {
+  background: transparent;
+  color: var(--admin-text-muted);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-btn-ghost:hover {
+  background: var(--admin-surface-hover);
+  color: var(--admin-text);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Table styling */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table thead th {
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-text-dim);
+  border-bottom: 1px solid var(--admin-border);
+  text-align: left;
+}
+
+.admin-table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.admin-table tbody td {
+  padding: 14px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  color: var(--admin-text);
+}
+
+/* Animations */
+@keyframes admin-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes admin-slide-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes admin-scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes admin-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes admin-pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 168, 67, 0.2); }
+  50% { box-shadow: 0 0 0 8px rgba(212, 168, 67, 0); }
+}
+
+.admin-animate-fade-in {
+  animation: admin-fade-in 0.3s ease-out;
+}
+
+.admin-animate-slide-in {
+  animation: admin-slide-in 0.3s ease-out;
+}
+
+.admin-animate-scale-in {
+  animation: admin-scale-in 0.2s ease-out;
+}
+
+.admin-shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.03) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: admin-shimmer 2s infinite;
+}
+
+/* ============================================
+   PUBLIC FRONTEND (unchanged)
+   ============================================ */
+
+.fade-in-hidden {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.fade-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.duration-600 {
+  transition-duration: 600ms;
+}

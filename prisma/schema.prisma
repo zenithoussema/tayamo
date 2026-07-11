@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// CORE MODELS (existing, enhanced)
+// ============================================
+
+model Activity {
+  id            Int        @id @default(autoincrement())
+  nameAr        String
+  nameFr        String
+  slug          String     @unique
+  descriptionAr String
+  descriptionFr String
+  ageRangeMin   Int        @default(4)
+  ageRangeMax   Int        @default(99)
+  iconName      String?
+  coverImageUrl String?
+  isActive      Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  bookings      Booking[]
+  schedules     Schedule[]
+}
+
+model Coach {
+  id             Int        @id @default(autoincrement())
+  name           String
+  specialty      String
+  imageUrl       String?
+  bio            String?
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  schedules      Schedule[]
+  assignedClients Client[]
+}
+
+model Schedule {
+  id         Int              @id @default(autoincrement())
+  activityId Int
+  coachId    Int?
+  dayOfWeek  DayOfWeek
+  startTime  String
+  endTime    String
+  coachName  String
+  category   ScheduleCategory @default(ADULTS)
+  season     ScheduleSeason   @default(SUMMER)
+  isActive   Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  bookings   Booking[]
+  activity   Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  coach      Coach?           @relation(fields: [coachId], references: [id], onDelete: SetNull)
+}
+
+model Booking {
+  id             Int           @id @default(autoincrement())
+  parentName     String
+  parentPhone    String
+  childName      String
+  childBirthDate DateTime?
+  activityId     Int
+  scheduleId     Int?
+  isTrialSession Boolean       @default(true)
+  status         BookingStatus @default(PENDING)
+  createdAt      DateTime      @default(now())
+  activity       Activity      @relation(fields: [activityId], references: [id])
+  schedule       Schedule?     @relation(fields: [scheduleId], references: [id])
+}
+
+model Testimonial {
+  id         Int      @id @default(autoincrement())
+  authorName String
+  content    String
+  rating     Int
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model ContactMessage {
+  id               Int      @id @default(autoincrement())
+  name             String
+  phone            String
+  email            String?
+  message          String
+  activityInterest String?
+  handled          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+}
+
+model GalleryImage {
+  id        Int      @id @default(autoincrement())
+  url       String
+  alt       String   @default("")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  value String
+}
+
+model SubscriptionPlan {
+  id           Int      @id @default(autoincrement())
+  name         String
+  price        Float
+  durationDays Int
+  features     String   @default("[]")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  clients      Client[]
+}
+
+// ============================================
+// ENHANCED MEMBER MODEL
+// ============================================
+
+model Client {
+  id                      Int       @id @default(autoincrement())
+  fullName                String
+  phone                   String
+  email                   String?
+  dateOfBirth             DateTime?
+  profileImageUrl         String?
+  activity                String
+  category                MemberCategory @default(FITNESS)
+  subscriptionStartDate   DateTime  @default(now())
+  subscriptionDurationDays Int      @default(30)
+  pricePaid               Float
+  planId                  Int?
+  assignedCoachId         Int?
+  notes                   String?
+  isActive                Boolean   @default(true)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+  payments                Payment[]
+  attendances             Attendance[]
+  feedbacks               Feedback[]
+  plan                    SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+  assignedCoach           Coach?    @relation(fields: [assignedCoachId], references: [id], onDelete: SetNull)
+}
+
+// ============================================
+// NEW MODELS
+// ============================================
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  role         UserRole @default(RECEPTION)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model Payment {
+  id          Int          @id @default(autoincrement())
+  clientId    Int
+  amount      Float
+  method      PaymentMethod @default(CASH)
+  reference   String?
+  description String?
+  date        DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  checkIn   DateTime @default(now())
+  checkOut  DateTime?
+  method    CheckInMethod @default(MANUAL)
+  notes     String?
+  createdAt DateTime @default(now())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  type      NotificationType @default(INFO)
+  title     String
+  message   String
+  entity    String?
+  entityId  Int?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  action    String
+  entity    String
+  entityId  Int?
+  details   String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model Feedback {
+  id        Int            @id @default(autoincrement())
+  clientId  Int
+  type      FeedbackType   @default(REVIEW)
+  subject   String
+  message   String
+  status    FeedbackStatus @default(PENDING)
+  reply     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  client    Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum UserRole {
+  OWNER
+  MANAGER
+  TRAINER
+  RECEPTION
+}
+
+enum MemberCategory {
+  BODYBUILDING
+  BOXING
+  FITNESS
+  CALISTHENICS
+  OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  MOBILE_PAYMENT
+  OTHER
+}
+
+enum CheckInMethod {
+  MANUAL
+  QR_CODE
+  PHONE_SEARCH
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  EXPIRATION
+  PAYMENT
+}
+
+enum FeedbackType {
+  REVIEW
+  SUGGESTION
+  COMPLAINT
+}
+
+enum FeedbackStatus {
+  PENDING
+  REVIEWED
+  SOLVED
+  DISMISSED
+}
+
+enum ScheduleCategory {
+  KIDS
+  ADULTS
+  WOMEN
+}
+
+enum ScheduleSeason {
+  SUMMER
+  WINTER
+}
