@@ -17,10 +17,6 @@ function getClientIp(request: NextRequest): string {
 export async function POST(request: NextRequest) {
   const adminPassword = (process.env.ADMIN_PASSWORD || "").trim();
   if (!adminPassword) {
-    console.error(
-      "AUTH CRITICAL: ADMIN_PASSWORD is not set. " +
-      "Set it in Vercel Dashboard > Settings > Environment Variables."
-    );
     return NextResponse.json(
       { error: "Server configuration error. Contact the administrator." },
       { status: 500 }
@@ -63,10 +59,16 @@ export async function POST(request: NextRequest) {
 
   resetRateLimit(rateLimitKey);
 
-  logAudit({ action: "Admin login", entity: "Auth", details: "Admin login successful" });
+  try {
+    await logAudit({ action: "Admin login", entity: "Auth", details: "Admin login successful" });
+  } catch {
+    // Non-blocking
+  }
 
   const token = createSessionToken();
+
   const response = NextResponse.json({ success: true });
+
   response.cookies.set("admin_session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -74,5 +76,6 @@ export async function POST(request: NextRequest) {
     maxAge: 60 * 60 * 4,
     path: "/",
   });
+
   return response;
 }

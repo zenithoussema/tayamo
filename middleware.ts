@@ -7,16 +7,6 @@ function getSigningSecret(): string | null {
   return raw.trim();
 }
 
-function base64UrlDecode(data: string): string {
-  let base64 = data.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) base64 += "=";
-  if (typeof atob === "function") {
-    return atob(base64);
-  }
-  const bytes = Uint8Array.from(base64, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
 function base64UrlEncode(data: Uint8Array): string {
   let binary = "";
   for (let i = 0; i < data.length; i++) {
@@ -25,18 +15,16 @@ function base64UrlEncode(data: Uint8Array): string {
   if (typeof btoa === "function") {
     return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(binary);
-  let base64 = "";
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  for (let i = 0; i < bytes.length; i += 3) {
-    const b1 = bytes[i];
-    const b2 = i + 1 < bytes.length ? bytes[i + 1] : 0;
-    const b3 = i + 2 < bytes.length ? bytes[i + 2] : 0;
+  let base64 = "";
+  for (let i = 0; i < data.length; i += 3) {
+    const b1 = data[i];
+    const b2 = i + 1 < data.length ? data[i + 1] : 0;
+    const b3 = i + 2 < data.length ? data[i + 2] : 0;
     base64 += chars[b1 >> 2];
     base64 += chars[((b1 & 3) << 4) | (b2 >> 4)];
-    base64 += i + 1 < bytes.length ? chars[((b2 & 15) << 2) | (b3 >> 6)] : "=";
-    base64 += i + 2 < bytes.length ? chars[b3 & 63] : "=";
+    base64 += i + 1 < data.length ? chars[((b2 & 15) << 2) | (b3 >> 6)] : "=";
+    base64 += i + 2 < data.length ? chars[b3 & 63] : "=";
   }
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
@@ -68,13 +56,7 @@ async function verifySessionCookie(request: NextRequest): Promise<boolean> {
   if (!token) return false;
 
   const secret = getSigningSecret();
-  if (!secret) {
-    console.error(
-      "AUTH ERROR: ADMIN_PASSWORD env var is not set. " +
-      "Set it in Vercel Dashboard > Settings > Environment Variables."
-    );
-    return false;
-  }
+  if (!secret) return false;
 
   try {
     const dotIndex = token.lastIndexOf(".");
@@ -93,7 +75,7 @@ async function verifySessionCookie(request: NextRequest): Promise<boolean> {
 
     if (!timingSafeEqual(receivedBuf, expectedBuf)) return false;
 
-    const decoded = JSON.parse(base64UrlDecode(payload));
+    const decoded = JSON.parse(payload);
 
     if (typeof decoded.exp !== "number" || Date.now() > decoded.exp) return false;
 
@@ -123,10 +105,12 @@ export async function middleware(request: NextRequest) {
       response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
       return response;
     }
+
     const authed = await verifySessionCookie(request);
     if (!authed) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
+
     const response = NextResponse.next();
     response.headers.set("X-Content-Type-Options", "nosniff");
     response.headers.set("X-Frame-Options", "DENY");

@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { checkSubscriptionExpirations } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  checkSubscriptionExpirations();
 
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -38,6 +41,8 @@ export async function GET(request: NextRequest) {
     todayAttendances,
     unreadNotifications,
     recentPayments,
+    allPaymentsForChartRaw,
+    plansWithClients,
   ] = await Promise.all([
     prisma.booking.count(),
     prisma.booking.count({ where: { status: "PENDING" } }),
@@ -91,7 +96,38 @@ export async function GET(request: NextRequest) {
       take: 5,
       include: { client: { select: { fullName: true } } },
     }),
+    prisma.payment.findMany({
+      orderBy: { date: "desc" },
+      select: { amount: true, date: true },
+    }),
+    prisma.subscriptionPlan.findMany({
+      include: { clients: { select: { id: true } } },
+    }),
   ]);
+
+  const allPaymentsForChart = allPaymentsForChartRaw as Array<{ amount: number; date: Date }>;
+
+  const monthlyRevenueMap = new Map<string, number>();
+  const monthsToShow = 12;
+  for (let i = monthsToShow - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlyRevenueMap.set(key, 0);
+  }
+  allPaymentsForChart.forEach((p) => {
+    const d = new Date(p.date);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (monthlyRevenueMap.has(key)) {
+      monthlyRevenueMap.set(key, (monthlyRevenueMap.get(key) || 0) + p.amount);
+    }
+  });
+  const revenuePerMonth = Array.from(monthlyRevenueMap.entries())
+    .map(([month, revenue]) => ({ month, revenue: Math.round(revenue * 100) / 100 }));
+
+  const planDistribution = plansWithClients.map((p) => ({
+    name: p.name,
+    count: p.clients.length,
+  })).sort((a, b) => b.count - a.count);
 
   return NextResponse.json({
     stats: {
@@ -119,5 +155,7 @@ export async function GET(request: NextRequest) {
     recentBookings,
     recentMessages,
     recentPayments,
+    revenuePerMonth,
+    planDistribution,
   });
 }

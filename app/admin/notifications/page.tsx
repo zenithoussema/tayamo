@@ -126,6 +126,10 @@ export default function NotificationsPage() {
     REMINDER: "bg-[var(--admin-gold)]/20 text-[var(--admin-gold)]",
     SYSTEM: "bg-purple-500/20 text-purple-400",
     ALERT: "bg-[var(--admin-danger)]/20 text-[var(--admin-danger)]",
+    EXPIRATION: "bg-[var(--admin-danger)]/20 text-[var(--admin-danger)]",
+    INFO: "bg-blue-500/20 text-blue-400",
+    WARNING: "bg-amber-500/20 text-amber-400",
+    SUCCESS: "bg-[var(--admin-success)]/20 text-[var(--admin-success)]",
   };
 
   const typeLabels: Record<string, string> = {
@@ -134,6 +138,10 @@ export default function NotificationsPage() {
     REMINDER: "Rappel",
     SYSTEM: "Système",
     ALERT: "Alerte",
+    EXPIRATION: "Expiration",
+    INFO: "Info",
+    WARNING: "Avertissement",
+    SUCCESS: "Succès",
   };
 
   const readTabs = [

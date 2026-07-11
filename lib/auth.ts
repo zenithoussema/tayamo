@@ -21,12 +21,6 @@ function getSigningSecret(): string {
   return raw.trim();
 }
 
-function base64urlDecode(data: string): string {
-  let base64 = data.replace(/-/g, "+").replace(/_/g, "/");
-  while (base64.length % 4) base64 += "=";
-  return Buffer.from(base64, "base64").toString("utf-8");
-}
-
 function signToken(payload: string): string {
   const secret = getSigningSecret();
   const signature = createHmac("sha256", secret).update(payload).digest("base64url");
@@ -51,7 +45,7 @@ function verifyToken(token: string): { valid: boolean; payload?: Record<string, 
 
     if (!timingSafeEqual(sigBuffer, expectedBuffer)) return { valid: false };
 
-    const decoded = JSON.parse(base64urlDecode(payload)) as Record<string, unknown>;
+    const decoded = JSON.parse(payload) as Record<string, unknown>;
 
     if (typeof decoded.exp !== "number" || Date.now() > decoded.exp) return { valid: false };
 

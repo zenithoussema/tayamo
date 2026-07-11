@@ -76,6 +76,14 @@ interface DashboardData {
     method: string;
     client: { fullName: string };
   }>;
+  revenuePerMonth: Array<{
+    month: string;
+    revenue: number;
+  }>;
+  planDistribution: Array<{
+    name: string;
+    count: number;
+  }>;
 }
 
 export default function AdminDashboard() {
@@ -98,28 +106,18 @@ export default function AdminDashboard() {
   }, []);
 
   const revenueChartData = useMemo(() => {
-    if (!data?.recentPayments) return [];
-    const grouped: Record<string, number> = {};
-    data.recentPayments.forEach((p) => {
-      const d = new Date(p.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
-      grouped[d] = (grouped[d] || 0) + p.amount;
-    });
-    return Object.entries(grouped).map(([date, amount]) => ({
-      name: date,
-      revenue: amount,
+    if (!data?.revenuePerMonth) return [];
+    return data.revenuePerMonth.map((item) => ({
+      name: item.month,
+      revenue: item.revenue,
     }));
   }, [data]);
 
-  const activityChartData = useMemo(() => {
-    if (!data?.recentBookings) return [];
-    const grouped: Record<string, number> = {};
-    data.recentBookings.forEach((b) => {
-      const d = new Date(b.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" });
-      grouped[d] = (grouped[d] || 0) + 1;
-    });
-    return Object.entries(grouped).map(([date, count]) => ({
-      name: date,
-      reservations: count,
+  const planChartData = useMemo(() => {
+    if (!data?.planDistribution) return [];
+    return data.planDistribution.map((item) => ({
+      name: item.name,
+      membres: item.count,
     }));
   }, [data]);
 
@@ -376,20 +374,20 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Activity chart from recentBookings */}
+        {/* Subscription plan distribution chart */}
         <div className="admin-card p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Activité des réservations</h2>
+            <h2 className="text-sm font-semibold text-white">Abonnements par plan</h2>
             <div className="flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1.5">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Réservations
+                Membres
               </span>
             </div>
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={activityChartData}>
+              <BarChart data={planChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis
                   dataKey="name"
@@ -416,7 +414,7 @@ export default function AdminDashboard() {
                   cursor={{ fill: "rgba(212, 168, 67, 0.05)" }}
                 />
                 <Bar
-                  dataKey="reservations"
+                  dataKey="membres"
                   fill="#22c55e"
                   radius={[6, 6, 0, 0]}
                 />
