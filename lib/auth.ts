@@ -11,9 +11,14 @@ const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
 };
 
 function getSigningSecret(): string {
-  const secret = process.env.ADMIN_PASSWORD || process.env.SESSION_SECRET;
-  if (!secret) throw new Error("ADMIN_PASSWORD or SESSION_SECRET must be set");
-  return secret;
+  const raw = process.env.ADMIN_PASSWORD || process.env.SESSION_SECRET;
+  if (!raw) {
+    throw new Error(
+      "AUTH CRITICAL: Neither ADMIN_PASSWORD nor SESSION_SECRET is set. " +
+      "Set ADMIN_PASSWORD in your Vercel dashboard under Settings > Environment Variables."
+    );
+  }
+  return raw.trim();
 }
 
 function base64urlDecode(data: string): string {
@@ -60,7 +65,7 @@ export function createSessionToken(): string {
   const payload = {
     role: "OWNER" as UserRole,
     iat: Date.now(),
-    exp: Date.now() + 4 * 60 * 60 * 1000, // 4 hours
+    exp: Date.now() + 4 * 60 * 60 * 1000,
   };
   return signToken(JSON.stringify(payload));
 }

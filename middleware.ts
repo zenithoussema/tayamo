@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { locales, defaultLocale } from "@/lib/locale";
 
+function getSigningSecret(): string | null {
+  const raw = process.env.ADMIN_PASSWORD || process.env.SESSION_SECRET;
+  if (!raw) return null;
+  return raw.trim();
+}
+
 function base64UrlDecode(data: string): string {
   let base64 = data.replace(/-/g, "+").replace(/_/g, "/");
   while (base64.length % 4) base64 += "=";
@@ -61,10 +67,16 @@ async function verifySessionCookie(request: NextRequest): Promise<boolean> {
   const token = request.cookies.get("admin_session")?.value;
   if (!token) return false;
 
-  try {
-    const secret = process.env.ADMIN_PASSWORD || process.env.SESSION_SECRET;
-    if (!secret) return false;
+  const secret = getSigningSecret();
+  if (!secret) {
+    console.error(
+      "AUTH ERROR: ADMIN_PASSWORD env var is not set. " +
+      "Set it in Vercel Dashboard > Settings > Environment Variables."
+    );
+    return false;
+  }
 
+  try {
     const dotIndex = token.lastIndexOf(".");
     if (dotIndex === -1) return false;
 
