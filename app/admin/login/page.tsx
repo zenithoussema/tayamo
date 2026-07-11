@@ -25,8 +25,12 @@ export default function AdminLoginPage() {
 
     if (res.ok) {
       router.push("/admin");
+    } else if (res.status === 429) {
+      const data = await res.json().catch(() => null);
+      setError(data?.error || "Trop de tentatives. Veuillez patienter.");
     } else {
-      setError("Mot de passe incorrect");
+      const data = await res.json().catch(() => null);
+      setError(data?.error || "Mot de passe incorrect");
     }
   }
 

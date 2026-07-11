@@ -1,23 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import { logAudit } from "@/lib/audit";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 import { createSessionToken } from "@/lib/auth";
 
+const LOGIN_MAX_ATTEMPTS = 10;
+const LOGIN_WINDOW_MS = 5 * 60 * 1000;
+
+function getClientIp(request: NextRequest): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return request.headers.get("x-real-ip") || "unknown";
+}
+
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for") || "unknown";
-  const { allowed } = checkRateLimit(`login:${ip}`, 5, 60000);
+  const ip = getClientIp(request);
+  const rateLimitKey = `login:${ip}`;
+  const { allowed } = checkRateLimit(rateLimitKey, LOGIN_MAX_ATTEMPTS, LOGIN_WINDOW_MS);
+
   if (!allowed) {
-    return NextResponse.json({ error: "Trop de tentatives. Réessayez dans 1 minute." }, { status: 429 });
+    return NextResponse.json(
+      {
+        error: "Trop de tentatives de connexion. Veuillez patienter quelques minutes avant de réessayer.",
+        retryAfter: Math.ceil(LOGIN_WINDOW_MS / 1000),
+      },
+      { status: 429 }
+    );
   }
 
-  const body = await request.json();
+  let body: { password?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
+  }
+
   const { password } = body;
 
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!password || typeof password !== "string") {
+    return NextResponse.json({ error: "Mot de passe requis." }, { status: 400 });
   }
 
-  logAudit({ action: "Admin login", entity: "Auth", details: "Admin login" });
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json(
+      { error: "Mot de passe incorrect." },
+      { status: 401 }
+    );
+  }
+
+  resetRateLimit(rateLimitKey);
+
+  logAudit({ action: "Admin login", entity: "Auth", details: "Admin login successful" });
 
   const token = createSessionToken();
   const response = NextResponse.json({ success: true });

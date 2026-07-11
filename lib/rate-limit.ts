@@ -20,3 +20,9 @@ export function checkRateLimit(
   record.count++;
   return { allowed: true, remaining: maxRequests - record.count };
 }
+
+export function resetRateLimit(key: string): void {
+  rateLimitMap.delete(key);
+}
+
+
