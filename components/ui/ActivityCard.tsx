@@ -24,6 +24,7 @@ export function ActivityCard({
   description,
   ageRangeMin,
   ageRangeMax,
+  imgSrc,
   dictionary,
 }: ActivityCardProps) {
   const ageText = dictionary.age_range
@@ -34,7 +35,7 @@ export function ActivityCard({
     <Card className="flex flex-col overflow-hidden transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl">
       <div className="relative h-72 w-full overflow-hidden rounded-t-2xl">
         <Image
-          src={`/images/activities/${slug}.jpg`}
+          src={imgSrc || `/images/activities/${slug}.jpg`}
           alt={`${name} Tayamo Sport`}
           fill
           className="object-cover"

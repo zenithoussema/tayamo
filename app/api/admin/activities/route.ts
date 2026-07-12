@@ -8,19 +8,46 @@ export async function GET(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
 
-  const activities = await prisma.activity.findMany({
-    orderBy: { nameFr: "asc" },
-    select: {
-      id: true,
-      nameFr: true,
-      nameAr: true,
-      slug: true,
-      coverImageUrl: true,
-      _count: { select: { bookings: true, schedules: true } },
-    },
-  });
+  const url = new URL(request.url);
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "20")));
+  const q = url.searchParams.get("q") || "";
+  const skip = (page - 1) * limit;
 
-  return NextResponse.json(activities);
+  const where: Record<string, unknown> = {};
+  if (q) {
+    where.OR = [
+      { nameFr: { contains: q, mode: "insensitive" } },
+      { nameAr: { contains: q, mode: "insensitive" } },
+    ];
+  }
+
+  const [data, total] = await Promise.all([
+    prisma.activity.findMany({
+      where,
+      orderBy: { nameFr: "asc" },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        nameFr: true,
+        nameAr: true,
+        slug: true,
+        coverImageUrl: true,
+        isActive: true,
+        descriptionFr: true,
+        descriptionAr: true,
+        ageRangeMin: true,
+        ageRangeMax: true,
+        iconName: true,
+        createdAt: true,
+        _count: { select: { bookings: true, schedules: true } },
+      },
+    }),
+    prisma.activity.count({ where }),
+  ]);
+
+  return NextResponse.json({ data, total });
 }
 
 export async function POST(request: NextRequest) {

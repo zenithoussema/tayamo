@@ -17,7 +17,6 @@ import { StatSkeleton, TableSkeleton } from "@/components/admin/ui/Skeleton";
 import ExportButton from "@/components/admin/ui/ExportButton";
 import Tabs from "@/components/admin/ui/Tabs";
 import { useToast } from "@/components/admin/ui/Toast";
-import { ACTIVITIES } from "@/lib/activities";
 
 interface Member {
   id: number;
@@ -47,6 +46,12 @@ interface Plan {
 interface Coach {
   id: number;
   fullName: string;
+}
+
+interface Activity {
+  id: number;
+  nameFr: string;
+  slug: string;
 }
 
 function getMemberStatus(m: Member) {
@@ -109,6 +114,7 @@ export default function ActivityMembersPage({
 
   const [plans, setPlans] = useState<Plan[]>([]);
   const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
 
   const limit = 10;
 
@@ -140,6 +146,10 @@ export default function ActivityMembersPage({
     adminFetch("/api/admin/coaches?page=1&limit=100")
       .then((r) => r.json())
       .then((d) => setCoaches(d.data || d || []))
+      .catch(() => {});
+    adminFetch("/api/admin/activities?limit=200")
+      .then((r) => r.json())
+      .then((d) => setActivities(d.data || d || []))
       .catch(() => {});
   }, []);
 
@@ -568,8 +578,8 @@ export default function ActivityMembersPage({
                 disabled
                 className="admin-select w-full opacity-60"
               >
-                {ACTIVITIES.map((a) => (
-                  <option key={a.slug} value={a.nameFr}>
+                {activities.map((a) => (
+                  <option key={a.id} value={a.nameFr}>
                     {a.nameFr}
                   </option>
                 ))}
