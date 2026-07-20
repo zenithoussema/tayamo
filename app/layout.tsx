@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Poppins, Cairo, Inter } from "next/font/google";
-import { ThemeScript } from "./theme-script";
+import { themeInitScript } from "./theme-script";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -55,7 +56,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <ThemeScript />
+        <Script
+          id="tayamo-theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
       </head>
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>

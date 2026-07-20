@@ -280,7 +280,7 @@ model ShopOrder {
   city          String
   notes         String?
   total         Float
-  status        ShopOrderStatus @default(PENDING)
+  status        ShopOrderStatus @default(NOUVEAU)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   items         ShopOrderItem[]
@@ -385,11 +385,11 @@ enum ScheduleSeason {
 }
 
 enum ShopOrderStatus {
-  PENDING
-  CONFIRMED
-  SHIPPED
-  DELIVERED
-  CANCELLED
+  NOUVEAU
+  EN_COURS
+  CONFIRME
+  LIVRE
+  ANNULE
 }
 
 enum NewsCategory {

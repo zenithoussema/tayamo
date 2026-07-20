@@ -19,11 +19,22 @@ interface ShopCartContextType {
   clearCart: () => void;
   getCartCount: () => number;
   getCartTotal: () => number;
+  mounted: boolean;
 }
 
 export const ShopCartContext = createContext<ShopCartContextType | undefined>(undefined);
 
 const CART_KEY = "tayamo-shop-cart";
+
+function loadCart(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const data = localStorage.getItem(CART_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
 
 function saveCart(items: CartItem[]) {
   if (typeof window === "undefined") return;
@@ -35,18 +46,13 @@ function saveCart(items: CartItem[]) {
 }
 
 export function ShopCartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const data = localStorage.getItem(CART_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch { return []; }
-  });
-
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [mounted, setMounted] = useState(false);
   const isInitialMount = useRef(true);
 
   useEffect(() => {
-    isInitialMount.current = false;
+    setItems(loadCart());
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -54,6 +60,10 @@ export function ShopCartProvider({ children }: { children: React.ReactNode }) {
       saveCart(items);
     }
   }, [items]);
+
+  useEffect(() => {
+    isInitialMount.current = false;
+  }, []);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity"> & { quantity?: number }) => {
     const qty = item.quantity ?? 1;
@@ -96,7 +106,7 @@ export function ShopCartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ShopCartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, getCartCount, getCartTotal }}
+      value={{ items, addItem, removeItem, updateQuantity, clearCart, getCartCount, getCartTotal, mounted }}
     >
       {children}
     </ShopCartContext.Provider>

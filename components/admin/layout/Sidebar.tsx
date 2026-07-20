@@ -31,6 +31,7 @@ import {
   Layout,
   ShoppingBag,
   Newspaper,
+  Package,
 } from "lucide-react";
 
 type NavItem = {
@@ -78,6 +79,7 @@ const staticGroups: NavGroup[] = [
     children: [
       { href: "/admin/shop/products", label: "Products", icon: ShoppingBag },
       { href: "/admin/shop/categories", label: "Categories", icon: Layout },
+      { href: "/admin/shop/orders", label: "Orders", icon: Package },
     ],
   },
   {

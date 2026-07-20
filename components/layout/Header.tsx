@@ -29,8 +29,8 @@ export function Header({ locale, dictionary, contact }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const nav = dictionary.nav;
-  const { getCartCount } = useShopCart();
-  const cartCount = getCartCount();
+  const { getCartCount, mounted } = useShopCart();
+  const cartCount = mounted ? getCartCount() : 0;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);

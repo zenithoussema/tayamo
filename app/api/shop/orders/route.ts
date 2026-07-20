@@ -12,10 +12,18 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
   const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get("limit") || "20")));
   const status = url.searchParams.get("status");
+  const search = url.searchParams.get("search");
   const skip = (page - 1) * limit;
 
   const where: Record<string, unknown> = {};
-  if (status) where.status = status;
+  if (status && status !== "ALL") where.status = status;
+  if (search) {
+    where.OR = [
+      { customerName: { contains: search, mode: "insensitive" } },
+      { customerPhone: { contains: search } },
+      { id: isNaN(parseInt(search)) ? -1 : parseInt(search) },
+    ];
+  }
 
   const [data, total] = await Promise.all([
     prisma.shopOrder.findMany({
@@ -41,8 +49,18 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { customerName, customerEmail, customerPhone, address, city, notes, items } = body;
 
-  if (!customerName || !customerPhone || !address || !city || !items?.length) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  const missing: string[] = [];
+  if (!customerName) missing.push("Nom complet");
+  if (!customerPhone) missing.push("Téléphone");
+  if (!address) missing.push("Adresse");
+  if (!city) missing.push("Ville");
+  if (!items?.length) missing.push("Articles du panier");
+
+  if (missing.length > 0) {
+    return NextResponse.json(
+      { error: `Champs manquants : ${missing.join(", ")}` },
+      { status: 400 }
+    );
   }
 
   const productIds = items.map((item: { productId: number }) => item.productId);

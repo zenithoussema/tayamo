@@ -28,11 +28,19 @@ export default async function OrderPage({ params }: OrderPageProps) {
   if (!order) notFound();
 
   const statusColors: Record<string, string> = {
-    PENDING: "text-yellow-400 bg-yellow-400/10",
-    CONFIRMED: "text-blue-400 bg-blue-400/10",
-    SHIPPED: "text-purple-400 bg-purple-400/10",
-    DELIVERED: "text-green-400 bg-green-400/10",
-    CANCELLED: "text-red-400 bg-red-400/10",
+    NOUVEAU: "text-blue-400 bg-blue-400/10",
+    EN_COURS: "text-yellow-400 bg-yellow-400/10",
+    CONFIRME: "text-green-400 bg-green-400/10",
+    LIVRE: "text-green-400 bg-green-400/10",
+    ANNULE: "text-red-400 bg-red-400/10",
+  };
+
+  const statusLabels: Record<string, string> = {
+    NOUVEAU: "Nouveau",
+    EN_COURS: "En cours",
+    CONFIRME: "Confirmé",
+    LIVRE: "Livré",
+    ANNULE: "Annulé",
   };
 
   return (
@@ -88,7 +96,7 @@ export default async function OrderPage({ params }: OrderPageProps) {
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">Status</span>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status] || "text-text-muted bg-surface-elevated"}`}>
-                    {order.status}
+                    {statusLabels[order.status] || order.status}
                   </span>
                 </div>
               </div>
