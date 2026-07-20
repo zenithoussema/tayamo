@@ -10,15 +10,15 @@ export function Badge({
   className = "",
 }: BadgeProps) {
   const variants: Record<string, string> = {
-    default: "bg-gray-100 text-gray-700",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-yellow-100 text-yellow-800",
-    danger: "bg-red-100 text-red-800",
+    default: "bg-surface-elevated text-text-secondary border border-border-strong",
+    success: "bg-[var(--c-success-bg)] text-success border border-success/20",
+    warning: "bg-[var(--c-accent-dim)] text-accent border border-border-accent",
+    danger: "bg-[var(--c-error-bg)] text-error border border-error/20",
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${variants[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold tracking-wide ${variants[variant]} ${className}`}
     >
       {children}
     </span>

@@ -1,10 +1,11 @@
 {
   "nav": {
     "home": "الرئيسية",
-    "activities": "الأنشطة",
+    "shop": "المتجر",
     "planning": "البرنامج",
     "tarifs": "الأسعار",
     "contact": "اتصل بنا",
+    "news": "حياة النادي",
     "reservation": "احجز الآن",
     "reservation_trial": "احجز حصة مجانية"
   },

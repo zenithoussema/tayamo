@@ -13,6 +13,7 @@ import {
   GripVertical,
   X,
   Upload,
+  Play,
 } from "lucide-react";
 import Pagination from "@/components/admin/ui/Pagination";
 import ConfirmDialog from "@/components/admin/ui/ConfirmDialog";
@@ -49,6 +50,7 @@ export default function GalleryPage() {
 
   const [showUpload, setShowUpload] = useState(false);
   const [uploadCategory, setUploadCategory] = useState("Général");
+  const [uploadVideoUrl, setUploadVideoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -57,6 +59,7 @@ export default function GalleryPage() {
   const [editAlt, setEditAlt] = useState("");
   const [editCategory, setEditCategory] = useState("Général");
   const [editCaption, setEditCaption] = useState("");
+  const [editVideoUrl, setEditVideoUrl] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
 
   const limit = 12;
@@ -193,6 +196,7 @@ export default function GalleryPage() {
     setEditAlt(img.alt);
     setEditCategory(img.category);
     setEditCaption("");
+    setEditVideoUrl("");
   };
 
   const handleSaveEdit = async () => {
@@ -201,7 +205,7 @@ export default function GalleryPage() {
     const res = await adminFetch(`/api/admin/gallery/${editImage.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ alt: editAlt, category: editCategory }),
+      body: JSON.stringify({ alt: editAlt, category: editCategory, videoUrl: editVideoUrl || undefined }),
     });
     if (res.ok) {
       addToast("Image mise à jour", "success");
@@ -229,10 +233,11 @@ export default function GalleryPage() {
   };
 
   const handleBulkUpload = async () => {
-    if (pendingFiles.length === 0) return;
+    if (pendingFiles.length === 0 && !uploadVideoUrl.trim()) return;
     setUploading(true);
     let successCount = 0;
 
+    // Upload image files
     for (let i = 0; i < pendingFiles.length; i++) {
       try {
         const formData = new FormData();
@@ -248,6 +253,8 @@ export default function GalleryPage() {
               alt: "",
               category: uploadCategory,
               featured: false,
+              type: "image",
+              videoUrl: "",
             }),
           });
           successCount++;
@@ -255,11 +262,31 @@ export default function GalleryPage() {
       } catch {}
     }
 
+    // Add video URL entry (no image file needed)
+    if (uploadVideoUrl.trim() && pendingFiles.length === 0) {
+      try {
+        await adminFetch("/api/admin/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: "",
+            alt: "",
+            category: uploadCategory,
+            featured: false,
+            type: "video",
+            videoUrl: uploadVideoUrl.trim(),
+          }),
+        });
+        successCount++;
+      } catch {}
+    }
+
     previewUrls.forEach((u) => URL.revokeObjectURL(u));
     setPendingFiles([]);
     setPreviewUrls([]);
+    setUploadVideoUrl("");
     setShowUpload(false);
-    addToast(`${successCount} image(s) ajoutée(s)`, "success");
+    addToast(`${successCount} élément(s) ajouté(s)`, "success");
     fetchImages();
     setUploading(false);
   };
@@ -332,13 +359,19 @@ export default function GalleryPage() {
                 key={img.id}
                 className="group relative overflow-hidden rounded-xl bg-[var(--admin-surface)] border border-[var(--admin-border)]"
               >
-                <div className="relative aspect-square overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={img.url}
-                    alt={img.alt}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
+                <div className="relative aspect-square overflow-hidden bg-white/[0.02]">
+                  {img.url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={img.url}
+                      alt={img.alt}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <Play size={32} className="text-[var(--admin-gold)]/40" />
+                    </div>
+                  )}
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
@@ -425,7 +458,7 @@ export default function GalleryPage() {
         </>
       )}
 
-      <Modal isOpen={showUpload} onClose={() => { setShowUpload(false); previewUrls.forEach((u) => URL.revokeObjectURL(u)); setPendingFiles([]); setPreviewUrls([]); }} title="Ajouter des images" maxWidth="max-w-2xl">
+      <Modal isOpen={showUpload} onClose={() => { setShowUpload(false); previewUrls.forEach((u) => URL.revokeObjectURL(u)); setPendingFiles([]); setPreviewUrls([]); setUploadVideoUrl(""); }} title="Ajouter au dossier" maxWidth="max-w-2xl">
         <div className="flex flex-col gap-4">
           <div>
             <label className="mb-1 block text-sm font-medium text-[var(--admin-text-muted)]">Catégorie</label>
@@ -441,14 +474,14 @@ export default function GalleryPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-[var(--admin-text-muted)]">Fichiers</label>
-            <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] p-8 text-center cursor-pointer transition-colors hover:border-[var(--admin-gold)]/40 hover:bg-white/[0.04]">
-              <Upload size={28} className="text-[var(--admin-gold)]/60" />
+            <label className="mb-2 block text-sm font-medium text-[var(--admin-text-muted)]">Images</label>
+            <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 bg-white/[0.02] p-6 text-center cursor-pointer transition-colors hover:border-[var(--admin-gold)]/40 hover:bg-white/[0.04]">
+              <Upload size={24} className="text-[var(--admin-gold)]/60" />
               <span className="text-sm font-medium text-[var(--admin-text-muted)]">
                 Cliquez ou glissez des fichiers ici
               </span>
               <span className="text-xs text-[var(--admin-text-dim)]">
-                JPG, PNG, GIF, WebP — Max 5MB par fichier
+                JPG, PNG, GIF, WebP — Max 5MB
               </span>
               <input
                 type="file"
@@ -458,6 +491,26 @@ export default function GalleryPage() {
                 className="hidden"
               />
             </label>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/5" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-[var(--admin-surface)] px-3 text-[var(--admin-text-dim)]">ou ajouter une vidéo</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[var(--admin-text-muted)]">URL de la vidéo</label>
+            <input
+              value={uploadVideoUrl}
+              onChange={(e) => setUploadVideoUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
+              className="admin-input w-full"
+            />
+            <p className="mt-1 text-xs text-[var(--admin-text-dim)]">YouTube, Vimeo, ou lien direct vers une vidéo MP4</p>
           </div>
 
           {previewUrls.length > 0 && (
@@ -479,14 +532,14 @@ export default function GalleryPage() {
 
           <div className="flex justify-end gap-3 border-t border-white/5 pt-4">
             <button
-              onClick={() => { setShowUpload(false); previewUrls.forEach((u) => URL.revokeObjectURL(u)); setPendingFiles([]); setPreviewUrls([]); }}
+              onClick={() => { setShowUpload(false); previewUrls.forEach((u) => URL.revokeObjectURL(u)); setPendingFiles([]); setPreviewUrls([]); setUploadVideoUrl(""); }}
               className="admin-btn-ghost rounded-lg px-4 py-2.5 text-sm font-medium"
             >
               Annuler
             </button>
             <button
               onClick={handleBulkUpload}
-              disabled={pendingFiles.length === 0 || uploading}
+              disabled={(pendingFiles.length === 0 && !uploadVideoUrl.trim()) || uploading}
               className="admin-btn-gold flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-50"
             >
               {uploading ? (
@@ -497,7 +550,7 @@ export default function GalleryPage() {
               ) : (
                 <>
                   <Upload size={16} />
-                  Envoyer {pendingFiles.length > 0 && `(${pendingFiles.length})`}
+                  Ajouter
                 </>
               )}
             </button>
@@ -505,12 +558,18 @@ export default function GalleryPage() {
         </div>
       </Modal>
 
-      <Modal isOpen={!!editImage} onClose={() => setEditImage(null)} title="Modifier l'image">
+      <Modal isOpen={!!editImage} onClose={() => setEditImage(null)} title="Modifier">
         <div className="flex flex-col gap-4">
           {editImage && (
             <div className="aspect-video overflow-hidden rounded-xl border border-[var(--admin-border)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={editImage.url} alt={editAlt} className="w-full h-full object-cover" />
+              {editImage.url ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={editImage.url} alt={editAlt} className="w-full h-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-white/[0.02]">
+                  <Play size={32} className="text-[var(--admin-gold)]/40" />
+                </div>
+              )}
             </div>
           )}
           <div>
@@ -518,7 +577,7 @@ export default function GalleryPage() {
             <input
               value={editAlt}
               onChange={(e) => setEditAlt(e.target.value)}
-              placeholder="Description de l'image"
+              placeholder="Description"
               className="admin-input w-full"
             />
           </div>
@@ -535,11 +594,11 @@ export default function GalleryPage() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-[var(--admin-text-muted)]">Légende</label>
+            <label className="mb-1 block text-sm font-medium text-[var(--admin-text-muted)]">URL de la vidéo</label>
             <input
-              value={editCaption}
-              onChange={(e) => setEditCaption(e.target.value)}
-              placeholder="Optionnel"
+              value={editVideoUrl}
+              onChange={(e) => setEditVideoUrl(e.target.value)}
+              placeholder="Laisser vide si image"
               className="admin-input w-full"
             />
           </div>

@@ -18,15 +18,15 @@ export async function GET(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  let meta = { alt: image.alt, category: "Général", featured: false };
+  let meta = { alt: image.alt, category: "Général", featured: false, type: "image", videoUrl: "" };
   try {
     const parsed = JSON.parse(image.alt);
     if (typeof parsed === "object" && parsed !== null) {
-      meta = { alt: parsed.alt ?? "", category: parsed.category ?? "Général", featured: parsed.featured ?? false };
+      meta = { alt: parsed.alt ?? "", category: parsed.category ?? "Général", featured: parsed.featured ?? false, type: parsed.type ?? "image", videoUrl: parsed.videoUrl ?? "" };
     }
   } catch {}
 
-  return NextResponse.json({ ...image, alt: meta.alt, category: meta.category, featured: meta.featured });
+  return NextResponse.json({ ...image, alt: meta.alt, category: meta.category, featured: meta.featured, type: meta.type, videoUrl: meta.videoUrl });
 }
 
 export async function PATCH(
@@ -43,24 +43,25 @@ export async function PATCH(
   if (body.url !== undefined) data.url = body.url;
   if (body.sortOrder !== undefined) data.sortOrder = body.sortOrder;
 
-  if (body.alt !== undefined || body.category !== undefined || body.featured !== undefined) {
+  if (body.alt !== undefined || body.category !== undefined || body.featured !== undefined || body.videoUrl !== undefined) {
     let existing = "";
     try {
       const img = await prisma.galleryImage.findUnique({ where: { id: Number(id) }, select: { alt: true } });
       if (img) existing = img.alt;
     } catch {}
 
-    let meta: { alt: string; category: string; featured: boolean } = { alt: "", category: "Général", featured: false };
+    let meta: { alt: string; category: string; featured: boolean; type: string; videoUrl: string } = { alt: "", category: "Général", featured: false, type: "image", videoUrl: "" };
     try {
       const parsed = JSON.parse(existing);
-      if (typeof parsed === "object" && parsed !== null) meta = { alt: parsed.alt ?? "", category: parsed.category ?? "Général", featured: parsed.featured ?? false };
+      if (typeof parsed === "object" && parsed !== null) meta = { alt: parsed.alt ?? "", category: parsed.category ?? "Général", featured: parsed.featured ?? false, type: parsed.type ?? "image", videoUrl: parsed.videoUrl ?? "" };
     } catch {
-      meta = { alt: existing, category: "Général", featured: false };
+      meta = { alt: existing, category: "Général", featured: false, type: "image", videoUrl: "" };
     }
 
     if (body.alt !== undefined) meta.alt = body.alt;
     if (body.category !== undefined) meta.category = body.category;
     if (body.featured !== undefined) meta.featured = body.featured;
+    if (body.videoUrl !== undefined) meta.videoUrl = body.videoUrl;
 
     data.alt = JSON.stringify(meta);
   }

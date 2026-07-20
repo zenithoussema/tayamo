@@ -12,10 +12,12 @@ function parseImageMeta(altField: string) {
         alt: parsed.alt ?? "",
         category: parsed.category ?? "Général",
         featured: parsed.featured ?? false,
+        type: parsed.type ?? "image",
+        videoUrl: parsed.videoUrl ?? "",
       };
     }
   } catch {}
-  return { alt: altField, category: "Général", featured: false };
+  return { alt: altField, category: "Général", featured: false, type: "image", videoUrl: "" };
 }
 
 export async function GET(request: NextRequest) {
@@ -43,6 +45,8 @@ export async function GET(request: NextRequest) {
       featured: meta.featured,
       sortOrder: img.sortOrder,
       createdAt: img.createdAt,
+      type: meta.type,
+      videoUrl: meta.videoUrl,
     };
   });
 
@@ -54,9 +58,11 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   const body = await request.json();
-  const { url, alt, category, featured } = body;
+  const { url, alt, category, featured, type, videoUrl } = body;
 
-  if (!url) {
+  const isVideo = type === "video" || (!url && videoUrl);
+
+  if (!isVideo && !url) {
     return NextResponse.json({ error: "URL is required" }, { status: 400 });
   }
 
@@ -68,11 +74,13 @@ export async function POST(request: NextRequest) {
     alt: alt || "",
     category: category || "Général",
     featured: featured ?? false,
+    type: isVideo ? "video" : "image",
+    videoUrl: videoUrl || "",
   });
 
   const image = await prisma.galleryImage.create({
     data: {
-      url,
+      url: url || "",
       alt: metadata,
       sortOrder: (maxOrder._max.sortOrder ?? -1) + 1,
     },

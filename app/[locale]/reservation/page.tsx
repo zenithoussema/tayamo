@@ -3,6 +3,7 @@ import { getDictionary } from "@/lib/dictionaries";
 import { prisma } from "@/lib/db";
 import { getContactSettings } from "@/lib/contact-settings";
 import { ReservationForm } from "./ReservationForm";
+import { FadeIn } from "@/components/ui/FadeIn";
 export const dynamic = "force-dynamic";
 
 export default async function ReservationPage({
@@ -27,24 +28,31 @@ export default async function ReservationPage({
   const whatsappUrl = `https://wa.me/${whatsappNumber}`;
 
   return (
-    <section className="py-12 md:py-16">
-      <div className="mx-auto max-w-2xl px-4">
-        <h1
-          className="mb-4 text-center text-3xl font-extrabold text-primary-dark md:text-4xl"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
-          {dict.reservation.title}
-        </h1>
-        <p className="mb-10 text-center text-gray-600">{dict.reservation.subtitle}</p>
-        <ReservationForm
-          dict={dict.reservation}
-          locale={locale as Locale}
-          isAr={locale === "ar"}
-          activities={activities}
-          schedules={schedules}
-          preselectedPlanName={planRecord?.name || null}
-          whatsappUrl={whatsappUrl}
-        />
+    <section className="min-h-screen pt-28 pb-20 lg:pt-32 lg:pb-28">
+      <div className="mx-auto max-w-2xl px-5 lg:px-8">
+        <FadeIn>
+          <div className="mb-10 text-center">
+            <h1
+              className="mb-4 text-3xl font-bold tracking-tight text-text md:text-4xl"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              <span className="gold-text">{dict.reservation.title}</span>
+            </h1>
+            <p className="mx-auto max-w-lg text-text-muted">{dict.reservation.subtitle}</p>
+            <div className="section-divider mx-auto mt-6 w-24" />
+          </div>
+        </FadeIn>
+        <FadeIn delay={100}>
+          <ReservationForm
+            dict={dict.reservation}
+            locale={locale as Locale}
+            isAr={locale === "ar"}
+            activities={activities}
+            schedules={schedules}
+            preselectedPlanName={planRecord?.name || null}
+            whatsappUrl={whatsappUrl}
+          />
+        </FadeIn>
       </div>
     </section>
   );

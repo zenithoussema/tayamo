@@ -29,6 +29,8 @@ import {
   BarChart3,
   Database,
   Layout,
+  ShoppingBag,
+  Newspaper,
 } from "lucide-react";
 
 type NavItem = {
@@ -64,9 +66,18 @@ const staticGroups: NavGroup[] = [
       { href: "/admin/activities", label: "Activities", icon: Activity },
       { href: "/admin/coaches", label: "Trainers", icon: UserCheck },
       { href: "/admin/gallery", label: "Gallery", icon: ImageIcon },
+      { href: "/admin/news", label: "Actualités", icon: Newspaper },
       { href: "/admin/testimonials", label: "Testimonials", icon: Quote },
       { href: "/admin/messages", label: "Messages", icon: MessageSquare },
       { href: "/admin/schedules", label: "Schedules", icon: Clock },
+    ],
+  },
+  {
+    label: "Shop",
+    icon: ShoppingBag,
+    children: [
+      { href: "/admin/shop/products", label: "Products", icon: ShoppingBag },
+      { href: "/admin/shop/categories", label: "Categories", icon: Layout },
     ],
   },
   {

@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Poppins, Cairo, Inter } from "next/font/google";
+import { ThemeScript } from "./theme-script";
 import "./globals.css";
 
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["800", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -53,6 +54,9 @@ export default function RootLayout({
       className={`${poppins.variable} ${cairo.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <ThemeScript />
+      </head>
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>
   );

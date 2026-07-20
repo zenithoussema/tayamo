@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// CORE MODELS (existing, enhanced)
-// ============================================
-
 model Activity {
   id            Int        @id @default(autoincrement())
   nameAr        String
@@ -22,39 +18,39 @@ model Activity {
   ageRangeMax   Int        @default(99)
   iconName      String?
   coverImageUrl String?
-  isActive      Boolean    @default(true)
   createdAt     DateTime   @default(now())
+  isActive      Boolean    @default(true)
   bookings      Booking[]
   schedules     Schedule[]
 }
 
 model Coach {
-  id             Int        @id @default(autoincrement())
-  name           String
-  specialty      String
-  imageUrl       String?
-  bio            String?
-  isActive       Boolean    @default(true)
-  createdAt      DateTime   @default(now())
-  schedules      Schedule[]
+  id              Int        @id @default(autoincrement())
+  name            String
+  specialty       String
+  imageUrl        String?
+  bio             String?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
   assignedClients Client[]
+  schedules       Schedule[]
 }
 
 model Schedule {
   id         Int              @id @default(autoincrement())
   activityId Int
-  coachId    Int?
   dayOfWeek  DayOfWeek
   startTime  String
   endTime    String
   coachName  String
-  category   ScheduleCategory @default(ADULTS)
-  season     ScheduleSeason   @default(SUMMER)
-  isActive   Boolean          @default(true)
   createdAt  DateTime         @default(now())
+  coachId    Int?
+  category   ScheduleCategory @default(ADULTS)
+  isActive   Boolean          @default(true)
+  season     ScheduleSeason   @default(SUMMER)
   bookings   Booking[]
   activity   Activity         @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  coach      Coach?           @relation(fields: [coachId], references: [id], onDelete: SetNull)
+  coach      Coach?           @relation(fields: [coachId], references: [id])
 }
 
 model Booking {
@@ -118,73 +114,65 @@ model SubscriptionPlan {
   clients      Client[]
 }
 
-// ============================================
-// ENHANCED MEMBER MODEL
-// ============================================
-
 model Client {
-  id                      Int       @id @default(autoincrement())
-  fullName                String
-  phone                   String
-  email                   String?
-  dateOfBirth             DateTime?
-  profileImageUrl         String?
-  activity                String
-  category                MemberCategory @default(FITNESS)
-  subscriptionStartDate   DateTime  @default(now())
-  subscriptionDurationDays Int      @default(30)
-  pricePaid               Float
-  planId                  Int?
-  assignedCoachId         Int?
-  notes                   String?
-  isActive                Boolean   @default(true)
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  payments                Payment[]
-  attendances             Attendance[]
-  feedbacks               Feedback[]
-  plan                    SubscriptionPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
-  assignedCoach           Coach?    @relation(fields: [assignedCoachId], references: [id], onDelete: SetNull)
+  id                       Int               @id @default(autoincrement())
+  fullName                 String
+  phone                    String
+  activity                 String
+  subscriptionStartDate    DateTime          @default(now())
+  subscriptionDurationDays Int               @default(30)
+  pricePaid                Float
+  notes                    String?
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
+  assignedCoachId          Int?
+  category                 MemberCategory    @default(FITNESS)
+  dateOfBirth              DateTime?
+  email                    String?
+  isActive                 Boolean           @default(true)
+  planId                   Int?
+  profileImageUrl          String?
+  attendances              Attendance[]
+  assignedCoach            Coach?            @relation(fields: [assignedCoachId], references: [id])
+  plan                     SubscriptionPlan? @relation(fields: [planId], references: [id])
+  feedbacks                Feedback[]
+  payments                 Payment[]
 }
 
-// ============================================
-// NEW MODELS
-// ============================================
-
 model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  email        String   @unique
+  id           Int        @id @default(autoincrement())
+  username     String     @unique
+  email        String     @unique
   passwordHash String
   fullName     String
-  role         UserRole @default(RECEPTION)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         UserRole   @default(RECEPTION)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
   auditLogs    AuditLog[]
 }
 
 model Payment {
-  id          Int          @id @default(autoincrement())
+  id          Int           @id @default(autoincrement())
   clientId    Int
   amount      Float
   method      PaymentMethod @default(CASH)
   reference   String?
   description String?
-  date        DateTime     @default(now())
-  createdAt   DateTime     @default(now())
-  client      Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  date        DateTime      @default(now())
+  createdAt   DateTime      @default(now())
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model Attendance {
-  id        Int      @id @default(autoincrement())
+  id        Int           @id @default(autoincrement())
   clientId  Int
-  checkIn   DateTime @default(now())
+  checkIn   DateTime      @default(now())
   checkOut  DateTime?
   method    CheckInMethod @default(MANUAL)
   notes     String?
-  createdAt DateTime @default(now())
-  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+  client    Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -206,7 +194,7 @@ model AuditLog {
   entityId  Int?
   details   String?
   createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User?    @relation(fields: [userId], references: [id])
 }
 
 model Feedback {
@@ -222,9 +210,102 @@ model Feedback {
   client    Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
-// ============================================
-// ENUMS
-// ============================================
+model News {
+  id          Int          @id @default(autoincrement())
+  title       String
+  titleAr     String?
+  content     String
+  contentAr   String?
+  imageUrl    String?
+  videoUrl    String?
+  category    NewsCategory @default(NEWS)
+  isPublished Boolean      @default(false)
+  isFeatured  Boolean      @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ShopCategory {
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String        @unique
+  description String?
+  icon        String?
+  imageUrl    String?
+  sortOrder   Int           @default(0)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  products    ShopProduct[]
+}
+
+model ShopProduct {
+  id             Int             @id @default(autoincrement())
+  name           String
+  slug           String          @unique
+  description    String
+  shortDesc      String?
+  price          Float
+  compareAtPrice Float?
+  images         String          @default("[]")
+  categoryId     Int
+  brand          String?
+  sku            String?
+  stock          Int             @default(0)
+  rating         Float           @default(0)
+  reviewCount    Int             @default(0)
+  isFeatured     Boolean         @default(false)
+  isNew          Boolean         @default(false)
+  isBestSeller   Boolean         @default(false)
+  isActive       Boolean         @default(true)
+  tags           String          @default("[]")
+  specifications String          @default("{}")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  colors         String          @default("[]")
+  productType    String?
+  sizes          String          @default("[]")
+  weight         Float?
+  orderItems     ShopOrderItem[]
+  category       ShopCategory    @relation(fields: [categoryId], references: [id])
+  reviews        ShopReview[]
+}
+
+model ShopOrder {
+  id            Int             @id @default(autoincrement())
+  customerName  String
+  customerEmail String?
+  customerPhone String
+  address       String
+  city          String
+  notes         String?
+  total         Float
+  status        ShopOrderStatus @default(PENDING)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  items         ShopOrderItem[]
+}
+
+model ShopOrderItem {
+  id        Int         @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  order     ShopOrder   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   ShopProduct @relation(fields: [productId], references: [id])
+}
+
+model ShopReview {
+  id         Int         @id @default(autoincrement())
+  productId  Int
+  authorName String
+  rating     Int
+  content    String
+  approved   Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  product    ShopProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
 
 enum DayOfWeek {
   MONDAY
@@ -301,4 +382,19 @@ enum ScheduleCategory {
 enum ScheduleSeason {
   SUMMER
   WINTER
+}
+
+enum ShopOrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum NewsCategory {
+  NEWS
+  EVENT
+  ANNOUNCEMENT
+  ADMIN_POST
 }

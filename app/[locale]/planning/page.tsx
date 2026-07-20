@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { Clock, ArrowRight } from "lucide-react";
 export const dynamic = "force-dynamic";
-
-
 
 const dayNamesAr: Record<string, string> = {
   MONDAY: "الإثنين", TUESDAY: "الثلاثاء", WEDNESDAY: "الأربعاء",
@@ -23,9 +23,9 @@ const categoryNamesFr: Record<string, string> = {
 };
 
 const categoryBadgeColors: Record<string, string> = {
-  KIDS: "bg-blue-50 text-blue-700 border-blue-200",
-  ADULTS: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  WOMEN: "bg-pink-50 text-pink-700 border-pink-200",
+  KIDS: "bg-blue-500/10 text-blue-400 border border-blue-500/20",
+  ADULTS: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+  WOMEN: "bg-pink-500/10 text-pink-400 border border-pink-500/20",
 };
 
 export const metadata: Metadata = {
@@ -63,139 +63,145 @@ export default async function PlanningPage({
   const catName = (cat: string) => isAr ? categoryNamesAr[cat] : categoryNamesFr[cat];
 
   return (
-    <section className="bg-bg py-16 md:py-20">
-      <div className="mx-auto max-w-6xl px-4">
+    <section className="min-h-screen pt-28 pb-20 lg:pt-32 lg:pb-28">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8">
         {/* Header */}
-        <div className="mb-12 text-center">
-          <h1
-            className="mb-4 text-3xl font-extrabold text-primary-dark md:text-5xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            {isAr ? "برنامج الصيف" : "Planning Été"}
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-gray-600">
-            {isAr
-              ? "تعرف على مواعيد جميع الأنشطة الرياضية — كل ما تحتاجونه في مكان واحد"
-              : "Découvrez les horaires de toutes nos activités sportives — tout ce dont vous avez besoin en un seul endroit"}
-          </p>
-        </div>
+        <FadeIn>
+          <div className="mb-14 text-center">
+            <h1
+              className="mb-4 text-3xl font-bold tracking-tight text-text md:text-4xl lg:text-5xl"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              {isAr ? "برنامج الصيف" : "Planning"} <span className="gold-text">{isAr ? "" : "Été"}</span>
+            </h1>
+            <p className="mx-auto max-w-2xl text-lg text-text-muted">
+              {isAr
+                ? "تعرف على مواعيد جميع الأنشطة الرياضية — كل ما تحتاجونه في مكان واحد"
+                : "Découvrez les horaires de toutes nos activités sportives — tout ce dont vous avez besoin en un seul endroit"}
+            </p>
+            <div className="section-divider mx-auto mt-6 w-24" />
+          </div>
+        </FadeIn>
 
         {/* Gym Hours Banner */}
-        <div className="mb-10 rounded-2xl bg-primary-dark p-6 text-center text-white shadow-lg">
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <svg className="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="text-lg font-bold">
-              {isAr ? "أوقات فتح الصالة" : "Horaires d'ouverture"}
-            </span>
-            <span className="text-gray-300">|</span>
-            <span className="text-lg font-semibold text-accent">
-              {isAr ? "كل يوم 08:00 — 22:00" : "Tous les jours 08:00 — 22:00"}
-            </span>
+        <FadeIn delay={100}>
+          <div className="mb-12 rounded-2xl border border-accent/20 bg-accent-faint p-6 text-center">
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Clock className="h-5 w-5 text-accent" />
+              <span className="text-lg font-bold text-text">
+                {isAr ? "أوقات فتح الصالة" : "Horaires d'ouverture"}
+              </span>
+              <span className="text-text-dim">|</span>
+              <span className="text-lg font-semibold text-accent">
+                {isAr ? "كل يوم 08:00 — 22:00" : "Tous les jours 08:00 — 22:00"}
+              </span>
+            </div>
           </div>
-        </div>
+        </FadeIn>
 
         {/* Activities Schedule */}
         {activityNames.length === 0 ? (
-          <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-            <svg className="mx-auto mb-4 h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-lg text-gray-500">
-              {isAr ? "لا توجد مواعيد متاحة حالياً" : "Aucun horaire disponible pour le moment"}
-            </p>
-          </div>
+          <FadeIn>
+            <div className="rounded-2xl border border-border bg-surface p-12 text-center">
+              <Clock className="mx-auto mb-4 h-12 w-12 text-text-dim" />
+              <p className="text-lg text-text-muted">
+                {isAr ? "لا توجد مواعيد متاحة حالياً" : "Aucun horaire disponible pour le moment"}
+              </p>
+            </div>
+          </FadeIn>
         ) : (
-          <div className="flex flex-col gap-8">
-            {activityNames.map((actName) => {
+          <div className="flex flex-col gap-6">
+            {activityNames.map((actName, i) => {
               const categories = groupedByActivity[actName];
               const categoryKeys = Object.keys(categories).sort();
 
               return (
-                <div key={actName} className="overflow-hidden rounded-2xl bg-white shadow-sm">
-                  {/* Activity Header */}
-                  <div className="bg-primary-dark px-6 py-4">
-                    <h2 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-heading)" }}>
-                      {actName}
-                    </h2>
-                  </div>
+                <FadeIn key={actName} delay={i * 80}>
+                  <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+                    {/* Activity Header */}
+                    <div className="border-b border-accent/10 bg-accent-faint px-6 py-4">
+                      <h2 className="text-xl font-bold text-text" style={{ fontFamily: "var(--font-heading)" }}>
+                        {actName}
+                      </h2>
+                    </div>
 
-                  {/* Categories */}
-                  <div className="divide-y divide-gray-100">
-                    {categoryKeys.map((cat) => {
-                      const items = categories[cat];
-                      return (
-                        <div key={cat} className="px-6 py-5">
-                          <div className="mb-4 flex items-center gap-3">
-                            <h3
-                              className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold ${categoryBadgeColors[cat] || "bg-gray-50 text-gray-700 border-gray-200"}`}
-                            >
-                              {catName(cat)}
-                            </h3>
-                          </div>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                              <thead>
-                                <tr className="border-b border-gray-100">
-                                  <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                                    {isAr ? "اليوم" : "Jour"}
-                                  </th>
-                                  <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
-                                    {isAr ? "التوقيت" : "Horaire"}
-                                  </th>
-                                  <th className="hidden pb-2 text-left text-xs font-semibold uppercase tracking-wider text-gray-400 md:table-cell">
-                                    {isAr ? "المدرب" : "Coach"}
-                                  </th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-gray-50">
-                                {items.map((s) => (
-                                  <tr key={s.id} className="transition-colors hover:bg-gray-50/50">
-                                    <td className="py-3 pr-4 font-semibold text-primary-dark">
-                                      {dayName(s.dayOfWeek)}
-                                    </td>
-                                    <td className="py-3 pr-4 font-mono text-gray-700">
-                                      {s.startTime.slice(0, 5)} — {s.endTime.slice(0, 5)}
-                                    </td>
-                                    <td className="hidden py-3 text-gray-500 md:table-cell">
-                                      {s.coachName}
-                                    </td>
+                    {/* Categories */}
+                    <div className="divide-y divide-border">
+                      {categoryKeys.map((cat) => {
+                        const items = categories[cat];
+                        return (
+                          <div key={cat} className="px-6 py-5">
+                            <div className="mb-4 flex items-center gap-3">
+                              <h3
+                                className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${categoryBadgeColors[cat] || "bg-white/5 text-text-secondary border border-border-strong"}`}
+                              >
+                                {catName(cat)}
+                              </h3>
+                            </div>
+                            <div className="overflow-x-auto">
+                              <table className="premium-table w-full text-sm">
+                                <thead>
+                                  <tr>
+                                    <th>{isAr ? "اليوم" : "Jour"}</th>
+                                    <th>{isAr ? "التوقيت" : "Horaire"}</th>
+                                    <th className="hidden md:table-cell">{isAr ? "المدرب" : "Coach"}</th>
                                   </tr>
-                                ))}
-                              </tbody>
-                            </table>
+                                </thead>
+                                <tbody>
+                                  {items.map((s) => (
+                                    <tr key={s.id}>
+                                      <td className="font-semibold text-text">
+                                        {dayName(s.dayOfWeek)}
+                                      </td>
+                                      <td className="font-mono">
+                                        {s.startTime.slice(0, 5)} — {s.endTime.slice(0, 5)}
+                                      </td>
+                                      <td className="hidden text-text-muted md:table-cell">
+                                        {s.coachName}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                </FadeIn>
               );
             })}
           </div>
         )}
 
         {/* CTA */}
-        <div className="mt-12 rounded-2xl bg-gradient-to-r from-primary-dark via-primary to-red-800 p-8 text-center text-white shadow-lg">
-          <h3
-            className="mb-3 text-2xl font-extrabold"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            {isAr ? "سجل الآن واحصل على جلسة مجانية" : "Inscrivez-vous et obtenez un cours gratuit"}
-          </h3>
-          <p className="mb-6 text-gray-200">
-            {isAr
-              ? "-contactونا للحصول على更多信息"
-              : "Contactez-nous pour plus d'informations ou réservez votre séance d'essai gratuite"}
-          </p>
-          <a
-            href={`/${locale}/reservation`}
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3 text-sm font-bold text-primary-dark transition-colors hover:bg-yellow-500"
-          >
-            {isAr ? "احجز جلسة مجانية" : "Réserver une séance gratuite"}
-          </a>
-        </div>
+        <FadeIn>
+          <div className="relative mt-14 overflow-hidden rounded-2xl border border-accent/20 p-8 text-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-bg via-[#1a1500] to-bg" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.06)_0%,transparent_60%)]" />
+            <div className="relative">
+              <h3
+                className="mb-3 text-2xl font-bold text-text"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                {isAr ? "سجل الآن واحصل على جلسة مجانية" : "Inscrivez-vous et obtenez un cours gratuit"}
+              </h3>
+              <p className="mb-6 text-text-muted">
+                {isAr
+                  ? "-contactونا للحصول على更多信息"
+                  : "Contactez-nous pour plus d'informations ou réservez votre séance d'essai gratuite"}
+              </p>
+              <a
+                href={`/${locale}/reservation`}
+                className="inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3.5 text-sm font-bold uppercase tracking-wider text-text-on-accent transition-all duration-300 hover:bg-accent-hover hover:shadow-[0_4px_20px_rgba(212,175,55,0.3)]"
+              >
+                {isAr ? "احجز جلسة مجانية" : "Réserver une séance gratuite"}
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

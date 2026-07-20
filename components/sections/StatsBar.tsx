@@ -43,18 +43,18 @@ function StatItem({
   const num = match ? parseInt(match[2], 10) : 0;
   const suffix = match?.[3] ?? "";
 
-  const count = useCountUp(num, 1800, visible);
+  const count = useCountUp(num, 2000, visible);
 
   return (
     <div
-      className="transition-all duration-500"
+      className="text-center transition-all duration-700"
       style={{
-        transitionDelay: visible ? `${index * 100}ms` : "0ms",
+        transitionDelay: visible ? `${index * 150}ms` : "0ms",
         opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(10px)",
+        transform: visible ? "translateY(0)" : "translateY(20px)",
       }}
     >
-      <p className="text-lg font-bold text-white">
+      <p className="text-2xl font-bold tracking-tight text-text lg:text-3xl" style={{ fontFamily: "var(--font-heading)" }}>
         {isNumeric ? `${prefix}${count}${suffix}` : text}
       </p>
     </div>
@@ -82,8 +82,9 @@ export function StatsBar({ stats }: { stats: string[] }) {
   }, []);
 
   return (
-    <section ref={ref} className="bg-primary-dark py-8">
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-6 px-4 text-center md:grid-cols-4">
+    <section ref={ref} className="relative border-y border-border bg-bg py-12 lg:py-14">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.03)_0%,transparent_70%)]" />
+      <div className="relative mx-auto grid max-w-6xl grid-cols-2 gap-8 px-5 text-center lg:grid-cols-4 lg:px-8">
         {stats.map((stat, i) => (
           <StatItem key={i} text={stat} index={i} visible={visible} />
         ))}

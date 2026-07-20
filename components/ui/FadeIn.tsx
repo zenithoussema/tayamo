@@ -6,9 +6,10 @@ interface FadeInProps {
   children: ReactNode;
   delay?: number;
   className?: string;
+  direction?: "up" | "down" | "left" | "right" | "scale";
 }
 
-export function FadeIn({ children, delay = 0, className = "" }: FadeInProps) {
+export function FadeIn({ children, delay = 0, className = "", direction = "up" }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,18 +19,27 @@ export function FadeIn({ children, delay = 0, className = "" }: FadeInProps) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          el.style.transitionDelay = `${delay}ms`;
-          el.style.opacity = "1";
-          el.style.transform = "translateY(0)";
+          setTimeout(() => {
+            el.style.opacity = "1";
+            el.style.transform = "translate(0, 0) scale(1)";
+          }, delay);
           observer.disconnect();
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
   }, [delay]);
+
+  const transforms: Record<string, string> = {
+    up: "translateY(40px)",
+    down: "translateY(-30px)",
+    left: "translateX(40px)",
+    right: "translateX(-40px)",
+    scale: "scale(0.92)",
+  };
 
   return (
     <div
@@ -37,8 +47,8 @@ export function FadeIn({ children, delay = 0, className = "" }: FadeInProps) {
       className={className}
       style={{
         opacity: 0,
-        transform: "translateY(24px)",
-        transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
+        transform: transforms[direction],
+        transition: "opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
       {children}

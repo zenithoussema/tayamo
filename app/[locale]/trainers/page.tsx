@@ -62,24 +62,27 @@ export default async function TrainersPage() {
   });
 
   return (
-    <section className="bg-white py-12 md:py-16">
-      <div className="mx-auto max-w-7xl px-4">
+    <section className="min-h-screen pt-28 pb-20 lg:pt-32 lg:pb-28">
+      <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <FadeIn>
-          <h1
-            className="mb-4 text-center text-3xl font-extrabold text-primary-dark md:text-4xl"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            Nos Entraîneurs
-          </h1>
-          <p className="mb-10 text-center text-gray-600">
-            Une équipe de professionnels certifiés à votre service
-          </p>
+          <div className="mb-14 text-center">
+            <h1
+              className="mb-4 text-3xl font-bold tracking-tight text-text md:text-4xl lg:text-5xl"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Nos <span className="gold-text">Entraîneurs</span>
+            </h1>
+            <p className="mx-auto max-w-lg text-text-muted">
+              Une équipe de professionnels certifiés à votre service
+            </p>
+            <div className="section-divider mx-auto mt-6 w-24" />
+          </div>
         </FadeIn>
 
         {trainers.length === 0 ? (
           <FadeIn>
             <div className="py-16 text-center">
-              <p className="text-gray-400">
+              <p className="text-text-dim">
                 Aucun entraîneur disponible pour le moment.
               </p>
             </div>
@@ -88,36 +91,34 @@ export default async function TrainersPage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {trainers.map((t, i) => (
               <FadeIn key={t.id} delay={i * 100}>
-                <div className="overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-2xl">
+                <div className="group overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-500 hover:border-accent/20 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+                  <div className="relative aspect-[3/4] w-full overflow-hidden">
                     {t.imageUrl ? (
                       <Image
                         src={t.imageUrl}
                         alt={t.name}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gray-100 text-5xl font-bold text-gray-300">
+                      <div className="flex h-full w-full items-center justify-center bg-[#1a1a1a] text-5xl font-bold text-text-dim">
                         {t.name.charAt(0)}
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                   </div>
-                  <div className="p-4">
-                    <h3 className="text-base font-bold text-primary-dark">
+                  <div className="p-5">
+                    <h3 className="text-lg font-bold text-text" style={{ fontFamily: "var(--font-heading)" }}>
                       {t.name}
                     </h3>
-                    <p
-                      className="text-sm font-medium"
-                      style={{ color: "#C1121F" }}
-                    >
+                    <p className="mt-1 text-sm font-medium text-accent">
                       {t.specialty}
                     </p>
 
                     {t.experience > 0 && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
-                        <Award className="h-3.5 w-3.5" />
+                      <div className="mt-3 flex items-center gap-1.5 text-xs text-text-muted">
+                        <Award className="h-3.5 w-3.5 text-accent-muted" />
                         <span>
                           {t.experience} an{t.experience > 1 ? "s" : ""}{" "}
                           d&apos;expérience
@@ -126,19 +127,19 @@ export default async function TrainersPage() {
                     )}
 
                     {t.bio && (
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-500">
+                      <p className="mt-2 line-clamp-2 text-sm text-text-dim">
                         {t.bio}
                       </p>
                     )}
 
                     {(t.social.facebook || t.social.instagram || t.social.tiktok) && (
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="mt-4 flex items-center gap-2">
                         {t.social.facebook && (
                           <a
                             href={t.social.facebook}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-[#1877F2]/10 hover:text-[#1877F2]"
+                            className="rounded-lg p-2 text-text-dim transition-colors hover:bg-[#1877F2]/10 hover:text-[#1877F2]"
                             title="Facebook"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
@@ -151,7 +152,7 @@ export default async function TrainersPage() {
                             href={t.social.instagram}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-[#E4405F]/10 hover:text-[#E4405F]"
+                            className="rounded-lg p-2 text-text-dim transition-colors hover:bg-[#E4405F]/10 hover:text-[#E4405F]"
                             title="Instagram"
                           >
                             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
@@ -164,7 +165,7 @@ export default async function TrainersPage() {
                             href={t.social.tiktok}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-black/5 hover:text-black"
+                            className="rounded-lg p-2 text-text-dim transition-colors hover:bg-white/5 hover:text-white"
                             title="TikTok"
                           >
                             <svg

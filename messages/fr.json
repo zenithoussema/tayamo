@@ -1,10 +1,11 @@
 {
   "nav": {
     "home": "Accueil",
-    "activities": "Activités",
+    "shop": "Boutique",
     "planning": "Planning",
     "tarifs": "Tarifs",
     "contact": "Contact",
+    "news": "Vie du Club",
     "reservation": "Réserver",
     "reservation_trial": "Réserver un cours d'essai"
   },

@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { locales, type Locale, isRtl } from "@/lib/locale";
 import { getDictionary } from "@/lib/dictionaries";
 import { getContactSettings } from "@/lib/contact-settings";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { LayoutShell } from "@/components/layout/LayoutShell";
 
 export async function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -30,9 +29,9 @@ export default async function LocaleLayout({
 
   return (
     <div dir={dir} lang={locale}>
-      <Header locale={locale as Locale} dictionary={dict} contact={contactSettings} />
-      <main className="flex-1">{children}</main>
-      <Footer locale={locale as Locale} dictionary={dict} contact={contactSettings} />
+      <LayoutShell locale={locale as Locale} dictionary={dict} contact={contactSettings}>
+        {children}
+      </LayoutShell>
     </div>
   );
 }

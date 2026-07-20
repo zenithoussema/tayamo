@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { Locale } from "@/lib/locale";
 import { getDictionary } from "@/lib/dictionaries";
 import { prisma } from "@/lib/db";
-import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Accordion } from "@/components/ui/Accordion";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { Check } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -48,88 +49,106 @@ export default async function TarifsPage({
   ];
 
   return (
-    <section className="py-12 md:py-16">
-      <div className="mx-auto max-w-6xl px-4">
-        <h1
-          className="mb-4 text-center text-3xl font-extrabold text-primary-dark md:text-4xl"
-          style={{ fontFamily: "var(--font-heading)" }}
-        >
-          {t.title}
-        </h1>
-        <p className="mb-10 text-center text-gray-600">{t.subtitle}</p>
+    <section className="min-h-screen pt-28 pb-20 lg:pt-32 lg:pb-28">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8">
+        <FadeIn>
+          <div className="mb-14 text-center">
+            <h1
+              className="mb-4 text-3xl font-bold tracking-tight text-text md:text-4xl lg:text-5xl"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              Tarifs et <span className="gold-text">Abonnements</span>
+            </h1>
+            <p className="mx-auto max-w-lg text-text-muted">{t.subtitle}</p>
+            <div className="section-divider mx-auto mt-6 w-24" />
+          </div>
+        </FadeIn>
 
         {plans.length === 0 ? (
-          <div className="rounded-2xl bg-white p-12 text-center shadow-sm">
-            <p className="text-lg text-gray-500">
-              {isAr ? "لا توجد عروض متاحة حالياً" : "Aucun abonnement disponible pour le moment"}
-            </p>
-          </div>
+          <FadeIn>
+            <div className="rounded-2xl border border-border bg-surface p-12 text-center">
+              <p className="text-lg text-text-muted">
+                {isAr ? "لا توجد عروض متاحة حالياً" : "Aucun abonnement disponible pour le moment"}
+              </p>
+            </div>
+          </FadeIn>
         ) : (
           <div className="grid gap-6 md:grid-cols-3">
             {plans.map((plan, index) => {
               const isMiddle = plans.length >= 3 && index === 1;
 
               return (
-                <Card
-                  key={plan.id}
-                  className={`relative flex flex-col p-6 ${isMiddle ? "ring-2 ring-primary" : ""}`}
-                >
-                  {isMiddle && (
-                    <Badge variant="danger" className="absolute -top-3 left-1/2 -translate-x-1/2">
-                      {isAr ? "الأكثر طلباً" : "Le plus demandé"}
-                    </Badge>
-                  )}
-                  <h3
-                    className="mb-1 text-xl font-bold text-primary-dark"
-                    style={{ fontFamily: "var(--font-heading)" }}
+                <FadeIn key={plan.id} delay={index * 100}>
+                  <div
+                    className={`relative flex h-full flex-col rounded-2xl border p-7 transition-all duration-500 ${
+                      isMiddle
+                        ? "border-accent/30 bg-surface shadow-[0_0_60px_rgba(212,175,55,0.08)]"
+                        : "border-border bg-surface hover:border-white/[0.08]"
+                    }`}
                   >
-                    {plan.name}
-                  </h3>
-                  <p className="mb-1 text-3xl font-bold text-primary">
-                    {plan.price} <span className="text-sm font-normal text-gray-500">TND</span>
-                  </p>
-                  <p className="mb-4 text-sm text-gray-500">
-                    {formatDuration(plan.durationDays)}
-                  </p>
-                  {plan.features.length > 0 && (
-                    <ul className="mb-6 flex flex-col gap-2 text-sm text-gray-600">
-                      {plan.features.map((perk, i) => (
-                        <li key={i} className="flex items-center gap-2">
-                          <svg className="h-4 w-4 shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                          </svg>
-                          {perk}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <div className="mt-auto">
-                    <Link
-                      href={`/${locale}/reservation?plan=${plan.id}`}
-                      className="block w-full rounded-lg bg-primary px-6 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-red-700"
+                    {isMiddle && (
+                      <Badge variant="warning" className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        {isAr ? "الأكثر طلباً" : "Le plus demandé"}
+                      </Badge>
+                    )}
+                    <h3
+                      className="mb-2 text-xl font-bold text-text"
+                      style={{ fontFamily: "var(--font-heading)" }}
                     >
-                      {t.cta}
-                    </Link>
+                      {plan.name}
+                    </h3>
+                    <p className="mb-1 text-4xl font-bold text-accent">
+                      {plan.price} <span className="text-sm font-normal text-text-dim">TND</span>
+                    </p>
+                    <p className="mb-6 text-sm text-text-dim">
+                      {formatDuration(plan.durationDays)}
+                    </p>
+                    {plan.features.length > 0 && (
+                      <ul className="mb-8 flex flex-1 flex-col gap-3 text-sm text-text-secondary">
+                        {plan.features.map((perk, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                            <span>{perk}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="mt-auto">
+                      <Link
+                        href={`/${locale}/reservation?plan=${plan.id}`}
+                        className={`block w-full rounded-xl py-3.5 text-center text-sm font-bold uppercase tracking-wider transition-all duration-300 ${
+                          isMiddle
+                            ? "bg-accent text-text-on-accent hover:bg-accent-hover hover:shadow-[0_4px_20px_rgba(212,175,55,0.3)]"
+                            : "border border-border-strong text-text hover:border-accent/30 hover:bg-accent-faint hover:text-accent"
+                        }`}
+                      >
+                        {t.cta}
+                      </Link>
+                    </div>
                   </div>
-                </Card>
+                </FadeIn>
               );
             })}
           </div>
         )}
 
         {/* Payment note */}
-        <div className="mx-auto mt-8 max-w-2xl rounded-xl bg-yellow-50 p-4 text-center text-sm text-yellow-800">
-          {t.payment_note}
-        </div>
+        <FadeIn>
+          <div className="mx-auto mt-8 max-w-2xl rounded-xl border border-accent/10 bg-accent-faint p-4 text-center text-sm text-accent-muted">
+            {t.payment_note}
+          </div>
+        </FadeIn>
 
         {/* FAQ Accordion */}
-        <div className="mx-auto mt-16 max-w-3xl">
-          <h2
-            className="mb-6 text-center text-2xl font-extrabold text-primary-dark"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            {t.faq_title}
-          </h2>
+        <div className="mx-auto mt-20 max-w-3xl">
+          <FadeIn>
+            <h2
+              className="mb-8 text-center text-2xl font-bold tracking-tight text-text"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
+              {t.faq_title}
+            </h2>
+          </FadeIn>
           <Accordion items={faqItems} />
         </div>
       </div>
